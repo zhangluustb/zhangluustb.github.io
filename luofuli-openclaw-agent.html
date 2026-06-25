@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>罗福莉：OpenClaw、Agent框架——AI范式已剧变</title>
+<style>
+  :root {
+    --primary: #1a6fff;
+    --primary-light: #e8f0fe;
+    --primary-dark: #1558d6;
+    --accent: #ff6b35;
+    --accent-light: #fff3ef;
+    --text-primary: #1a1a2e;
+    --text-secondary: #4a4a6a;
+    --text-muted: #8888aa;
+    --bg: #f5f7fb;
+    --bg-card: #ffffff;
+    --border: #e2e8f0;
+    --border-light: #f0f4f8;
+    --green: #0abf76;
+    --green-light: #e6faf4;
+    --purple: #7c3aed;
+    --purple-light: #f5f0ff;
+    --orange: #f59e0b;
+    --orange-light: #fffbeb;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.05);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-lg: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.8;
+    font-size: 15px;
+  }
+
+  /* ─── Layout ─── */
+  .page-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+
+  /* ─── Hero Header ─── */
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1a6fff 100%);
+    color: #fff;
+    padding: 56px 32px 44px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(26,111,255,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.85);
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+    letter-spacing: 0.5px;
+  }
+  .hero h1 {
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+  .hero-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 24px;
+  }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.8);
+    font-size: 12.5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .hero-context {
+    background: rgba(255,255,255,0.08);
+    border-left: 3px solid rgba(255,255,255,0.4);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.7;
+  }
+
+  /* ─── TOC ─── */
+  .toc {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow-sm);
+  }
+  .toc-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .toc-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 20px;
+  }
+  @media (max-width: 560px) {
+    .toc-list { grid-template-columns: 1fr; }
+  }
+  .toc-list a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .toc-list a:hover {
+    color: var(--primary);
+    background: var(--primary-light);
+  }
+  .toc-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-light);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ─── Section Card ─── */
+  .section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 32px 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s;
+  }
+  .section-card:hover { box-shadow: var(--shadow-md); }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .section-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+  .section-header .section-num {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── Sub-section ─── */
+  .subsection {
+    margin-top: 24px;
+  }
+  .subsection h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .subsection h3::before {
+    content: '';
+    width: 3px; height: 16px;
+    background: var(--primary);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .subsection + .subsection {
+    border-top: 1px dashed var(--border);
+    padding-top: 24px;
+  }
+
+  /* ─── Callout / Blockquote ─── */
+  .callout {
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  .callout-insight {
+    background: var(--primary-light);
+    border-left: 4px solid var(--primary);
+  }
+  .callout-insight strong { color: var(--primary-dark); }
+  .callout-warn {
+    background: var(--orange-light);
+    border-left: 4px solid var(--orange);
+  }
+  .callout-success {
+    background: var(--green-light);
+    border-left: 4px solid var(--green);
+  }
+  .callout-purple {
+    background: var(--purple-light);
+    border-left: 4px solid var(--purple);
+  }
+  .callout-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    opacity: 0.7;
+  }
+
+  /* ─── Story Days ─── */
+  .story-days {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .story-day {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+  .day-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--primary);
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+    margin-top: 1px;
+  }
+  .story-day p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+  .story-day strong { color: var(--text-primary); }
+
+  /* ─── Table ─── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead tr {
+    background: linear-gradient(90deg, var(--primary) 0%, #2979ff 100%);
+    color: #fff;
+  }
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.12s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--primary-light); }
+  tbody td {
+    padding: 11px 16px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  tbody td:first-child { color: var(--text-primary); font-weight: 500; }
+
+  /* ─── Code / Formula Block ─── */
+  .code-block {
+    background: #0f172a;
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #e2e8f0;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-block .comment { color: #64748b; }
+  .code-block .key { color: #7dd3fc; }
+  .code-block .val { color: #86efac; }
+  .code-block .arrow { color: #fbbf24; }
+  .code-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  /* ─── Timeline ─── */
+  .timeline {
+    position: relative;
+    padding-left: 24px;
+    margin: 16px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px; top: 8px; bottom: 8px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--primary), var(--purple));
+    border-radius: 2px;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 14px;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -20px; top: 18px;
+    width: 10px; height: 10px;
+    background: var(--primary);
+    border: 2px solid var(--bg-card);
+    border-radius: 50%;
+  }
+  .timeline-year {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+  }
+  .timeline-content { font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; }
+  .timeline-content strong { color: var(--text-primary); }
+
+  /* ─── Bullet List ─── */
+  .styled-list {
+    list-style: none;
+    margin: 12px 0;
+  }
+  .styled-list li {
+    padding: 6px 0 6px 22px;
+    position: relative;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  .styled-list li::before {
+    content: '▸';
+    position: absolute; left: 0;
+    color: var(--primary);
+    font-size: 12px;
+    top: 8px;
+  }
+  .styled-list li strong { color: var(--text-primary); }
+
+  /* ─── Numbered List ─── */
+  .numbered-list {
+    list-style: none;
+    counter-reset: item;
+    margin: 12px 0;
+  }
+  .numbered-list li {
+    counter-increment: item;
+    padding: 8px 0 8px 34px;
+    position: relative;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  .numbered-list li::before {
+    content: counter(item);
+    position: absolute; left: 0;
+    width: 22px; height: 22px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    top: 10px;
+  }
+  .numbered-list li strong { color: var(--text-primary); }
+
+  /* ─── Equation Card ─── */
+  .equation-card {
+    background: linear-gradient(135deg, var(--primary-light), #ede9fe);
+    border: 1px solid #c7d7fd;
+    border-radius: var(--radius-sm);
+    padding: 18px 22px;
+    margin: 16px 0;
+    text-align: center;
+    font-family: "SF Mono", monospace;
+    font-size: 14px;
+    color: var(--primary-dark);
+    font-weight: 500;
+  }
+  .equation-card .eq-label {
+    font-family: inherit;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  /* ─── Model Matrix Cards ─── */
+  .model-matrix {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  @media (max-width: 600px) {
+    .model-matrix { grid-template-columns: 1fr; }
+  }
+  .model-card {
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .model-card .model-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .model-card .model-role {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .model-card .model-brain {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .model-card-blue { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: #bfdbfe; }
+  .model-card-blue .model-name { color: #1d4ed8; }
+  .model-card-green { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: #bbf7d0; }
+  .model-card-green .model-name { color: #166534; }
+  .model-card-orange { background: linear-gradient(135deg, #fff7ed, #ffedd5); border-color: #fed7aa; }
+  .model-card-orange .model-name { color: #9a3412; }
+
+  /* ─── Key Insights ─── */
+  .insights-grid {
+    display: grid;
+    gap: 12px;
+  }
+  .insight-item {
+    display: flex;
+    gap: 14px;
+    padding: 16px 18px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    align-items: flex-start;
+    transition: all 0.15s;
+  }
+  .insight-item:hover {
+    background: var(--primary-light);
+    border-color: #bfdbfe;
+    transform: translateX(4px);
+  }
+  .insight-num {
+    width: 28px; height: 28px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .insight-content { font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
+  .insight-content strong { color: var(--text-primary); font-weight: 600; }
+
+  /* ─── Stat Row ─── */
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .stat-chip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 20px;
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+  }
+  .stat-chip .stat-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1.2;
+  }
+  .stat-chip .stat-lbl {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ─── Divider ─── */
+  .divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 20px 0;
+  }
+
+  /* ─── Footer ─── */
+  .article-footer {
+    text-align: center;
+    padding: 28px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-top: 32px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .article-footer strong { color: var(--text-secondary); }
+
+  /* ─── Prose ─── */
+  .prose p {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    line-height: 1.85;
+    margin-bottom: 10px;
+  }
+  .prose p strong { color: var(--text-primary); }
+  .prose p:last-child { margin-bottom: 0; }
+
+  /* ─── Comparison Banner ─── */
+  .compare-banner {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  @media (max-width: 560px) {
+    .compare-banner { flex-direction: column; }
+  }
+  .compare-side {
+    flex: 1;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  .compare-side .compare-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+  .compare-old {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+  }
+  .compare-old .compare-label { color: #b91c1c; }
+  .compare-new {
+    background: var(--green-light);
+    border: 1px solid #a7f3d0;
+  }
+  .compare-new .compare-label { color: #065f46; }
+
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">🔬 深度访谈 · AI范式洞见</div>
+  <h1>OpenClaw、Agent框架——<br>AI范式已剧变</h1>
+  <p class="hero-subtitle">核心洞见整理 · 预计阅读时间：25–30 分钟</p>
+  <div class="hero-meta">
+    <span class="hero-chip">👤 受访者：罗福莉</span>
+    <span class="hero-chip">🏢 小米大模型负责人</span>
+    <span class="hero-chip">🔬 前DeepSeek核心研究员</span>
+  </div>
+  <div class="hero-context">
+    本文整理自一次深度访谈，发生于小米 Mimo VR 系列（Flash / Pro / Omni / TTS）发布之后，以及 OpenClaw（Claude Code 的开源竞争者）在中国圈引发热潮之后。
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">目录导航</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">一</span>OpenClaw 带来的认知革命</a></li>
+      <li><a href="#s2"><span class="toc-num">二</span>Agent框架：人与模型的中间层</a></li>
+      <li><a href="#s3"><span class="toc-num">三</span>训练范式的根本转变</a></li>
+      <li><a href="#s4"><span class="toc-num">四</span>Mimo VR 架构核心决策</a></li>
+      <li><a href="#s5"><span class="toc-num">五</span>大模型三年进化史</a></li>
+      <li><a href="#s6"><span class="toc-num">六</span>自学习与AGI路径推断</a></li>
+      <li><a href="#s7"><span class="toc-num">七</span>组织与团队的反常识选择</a></li>
+      <li><a href="#s8"><span class="toc-num">八</span>最值得警惕的错误路径</a></li>
+      <li><a href="#s9"><span class="toc-num">九</span>2026年核心叙事预判</a></li>
+      <li><a href="#s10"><span class="toc-num">十</span>一句话提炼十大洞见</a></li>
+    </ul>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section-card" id="s1">
+    <div class="section-header">
+      <div class="section-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);">🌊</div>
+      <div>
+        <div class="section-num">第一章</div>
+        <h2>范式分水岭：OpenClaw 带来的认知革命</h2>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>从"产品"到"划时代 Agent 框架"的重新定义</h3>
+      <div class="callout callout-insight">
+        <div class="callout-label">核心观点</div>
+        OpenClaw 不是 Claude Code 加了个更好交互的 UI，而是一套<strong>「Agent 编排哲学」</strong>的开源具现。
+      </div>
+      <div class="prose">
+        <p>罗福莉最初认为 OpenClaw 只是一个"偏运营导向的产品创新"，甚至排斥去用。真正的转折发生在她春节期间凌晨两点安装后，连续对话到天亮——连续三天，每天的惊喜层次不同：</p>
+      </div>
+      <div class="story-days">
+        <div class="story-day">
+          <span class="day-badge">第一天</span>
+          <p>感受到"产品有灵魂"——因为它做了很多<strong>精心的 Context 编排</strong>（如在每次对话前注入当前时间），营造出温度感。</p>
+        </div>
+        <div class="story-day">
+          <span class="day-badge">第二天</span>
+          <p>发现它能替代一部分日常管理和工作思考，成为<strong>"数字分身"</strong>。</p>
+        </div>
+        <div class="story-day">
+          <span class="day-badge">第三天</span>
+          <p>它真正帮助完成了研究任务——协助构建 user-agent 多轮交互的数据生成框架，而这原本被认为<strong>"不可能一两小时就做出来"</strong>。</p>
+        </div>
+      </div>
+      <div class="callout callout-success">
+        <div class="callout-label">洞见</div>
+        框架设计本身是"智能涌现的放大器"。OpenClaw 之所以强大，是因为它的核心设计哲学是——<strong>用框架弥补模型短板</strong>，而不是依赖单一顶尖模型。
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>OpenClaw 的技术护城河：它具体好在哪里</h3>
+      <div class="prose"><p>这些单独看都有点"boring"，但组合在一起就形成了极高完成度：</p></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>特性</th><th>Claude Code</th><th>OpenClaw</th></tr></thead>
+          <tbody>
+            <tr><td>记忆体系</td><td>Session 内压缩存储</td><td>分层分级持久化记忆</td></tr>
+            <tr><td>模型调度</td><td>手动指定模型</td><td>自动识别任务类型，调度最合适模型</td></tr>
+            <tr><td>设计目的</td><td>For 软件工程</td><td>For 端到端完成所有任务</td></tr>
+            <tr><td>开放性</td><td>黑盒</td><td>开源，可自改框架</td></tr>
+            <tr><td>任务覆盖</td><td>编码为主</td><td>含心跳任务、定时任务、日常场景</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-insight">
+        <strong>关键认知</strong>：Claude Code 所有设计都是为"写好代码"服务，OpenClaw 则是为"弥补模型短板、端到端完成任务"服务。后者的泛化性更强。
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>开源带来的"群体智能"效应</h3>
+      <div class="callout callout-purple">
+        <div class="callout-label">核心洞见</div>
+        开源 Agent 框架真正的优势不是"免费"，而是能<strong>调动全人类智慧共同进化</strong>。
+      </div>
+      <div class="prose">
+        <p>罗福莉组建了一个近百人的群聊，让团队强制使用 OpenClaw（"100轮对话以下的明天可以 quit"——虽然她从没打算真的考核）。结果：</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat-chip">
+          <div class="stat-val">~100人</div>
+          <div class="stat-lbl">强制使用群规模</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-val">999+</div>
+          <div class="stat-lbl">两天内群消息不间断</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-val">数小时</div>
+          <div class="stat-lbl">框架叠加一轮迭代速度</div>
+        </div>
+      </div>
+      <div class="callout callout-success">
+        <strong>深刻规律</strong>：个人想象力是局限的，群体智能是指数级的。这也是她相信"AGI 到来的必要前兆就是所有人的参与"的根源。
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section-card" id="s2">
+    <div class="section-header">
+      <div class="section-icon" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);">⚙️</div>
+      <div>
+        <div class="section-num">第二章</div>
+        <h2>Agent 框架 ≠ 产品，它是"人与模型之间的中间层"</h2>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>重新定义 Agent 框架</h3>
+      <div class="prose"><p>很多人把 OpenClaw 理解为"一个更好的产品"，这是错的。</p></div>
+      <div class="compare-banner">
+        <div class="compare-side compare-old">
+          <div class="compare-label">❌ 错误理解</div>
+          产品 = 人能直接感知交互的那一层（最薄的层）
+        </div>
+        <div class="compare-side compare-new">
+          <div class="compare-label">✅ 正确理解</div>
+          Agent 框架 = <strong>人与模型之间的中间层</strong>，承担：对话 Context 编排、多模型调度与能力补位、持久化记忆管理、主动任务执行（心跳/定时/环境感知）、弥补模型行动上的缺陷
+        </div>
+      </div>
+      <div class="equation-card">
+        <div class="eq-label">核心方程</div>
+        最终任务完成率 = f（模型能力，Agent框架设计，用户 Context 沉淀）
+      </div>
+      <div class="callout callout-insight">
+        对于<strong>中层模型</strong>，框架是"缺陷补位器"；对于<strong>顶尖模型</strong>，框架是"能力放大器"。
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>一个好的 Agent 框架应该具备什么</h3>
+      <ol class="numbered-list">
+        <li><strong>弥补行动上的缺陷</strong>：持久化记忆、多 channel 消息、定时主动任务、自我更新迭代</li>
+        <li><strong>广泛的 Context 获取能力</strong>：模型获取不到的环境信息要主动补</li>
+        <li><strong>完善的评估体系</strong>：框架自迭代的前提，当前大多数评估只是"防止致命错误"，远不够</li>
+        <li><strong>容错性强的推理架构</strong>：Agent 场景下任务会中断、会超时，不能像预训练那样追求"零 Spike"</li>
+      </ol>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>Skills 是"预训练无法覆盖的知识"的补充形式</h3>
+      <div class="callout callout-purple">
+        <div class="callout-label">类比</div>
+        Skills ≈ 给博士生的导师手册 + 企业 SOP，这些是 GPT 训练数据里没有的。
+      </div>
+      <ul class="styled-list">
+        <li>预训练数据覆盖的是互联网公开知识</li>
+        <li><strong>很多智能存在于企业内部、组织规范、个人经验中，互联网上根本没有</strong></li>
+        <li>Skills 提供了一种交互机制，让人类主动贡献"私有知识"给 Agent</li>
+        <li>这些知识以 Skill 的形式被 Agent 内化，大幅提升复杂场景任务完成率</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section-card" id="s3">
+    <div class="section-header">
+      <div class="section-icon" style="background:linear-gradient(135deg,#fef9c3,#fef08a);">🔄</div>
+      <div>
+        <div class="section-num">第三章</div>
+        <h2>训练范式的根本转变：从 Chat 到 Agent</h2>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>为什么过去的"Agent"都不算真正的 Agent？</h3>
+      <div class="prose"><p>2025年初以前，大多数"Agent模型"的实质只是：</p></div>
+      <ul class="styled-list">
+        <li>换了一个更复杂的 System Prompt</li>
+        <li>加了一点点环境反馈（如 bash 执行）</li>
+        <li><strong>没有工业级可用性</strong>：接上 Claude Code 或 OpenClaw 就露馅了</li>
+      </ul>
+      <div class="prose"><p>真正的 Agent 模型，需要能理解：</p></div>
+      <ul class="styled-list">
+        <li>整套框架的设计意图</li>
+        <li>人与 AI 交互范式的转变（人不再"修改某行代码"，而是提更高层次的需求）</li>
+        <li>跨 session 的持久记忆</li>
+        <li>端到端完成长任务的能力</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>关键转变：长上下文 + Agent 场景的后训练</h3>
+      <div class="callout callout-insight">
+        <div class="callout-label">核心洞见</div>
+        能做好 Coding 任务 = 能做好 Agent 的基础。Code 在三个范式（预训练、Reasoning、Agent）都是最优雅的训练路径。
+      </div>
+      <div class="prose"><p>为什么 Code 有如此强的泛化性：</p></div>
+      <ol class="numbered-list">
+        <li><strong>预训练</strong>：代码是互联网上最长上下文依赖最密集的数据，训好 Code = 训好长上下文建模</li>
+        <li><strong>Reasoning</strong>：代码和数学都有可验证的 reward，是 RL 训练的完美场景</li>
+        <li><strong>Agent</strong>：软件开发本身就是极复杂的长链条任务，框架完善、环境反馈丰富</li>
+      </ol>
+      <div class="code-block">
+        <div class="code-label">训练资源比例建议（当下）</div>
+        <span class="key">研究卡</span> : <span class="key">预训练卡</span> : <span class="key">后训练卡</span> = <span class="val">3 : 1 : 1</span>
+        <br><br>
+        <span class="comment"># 注：预训练 vs 后训练已从过去的 5:1 → 3:1 → 正在趋向 1:1</span>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>后训练的数据构造难题</h3>
+      <div class="prose"><p>后训练面临的核心挑战是<strong>如何构造真实的 Agent 环境数据</strong>：</p></div>
+      <ol class="numbered-list">
+        <li>需要还原用户与 Agent 交互的完整环境（不只是对话文本）</li>
+        <li>有了环境才能设计精准的 reward</li>
+        <li>长链条任务（1M context）的训练效率太低，实践上先用较短上下文激活，再外推</li>
+      </ol>
+      <div class="callout callout-warn">
+        <div class="callout-label">关键判断</div>
+        谁能在<strong>「环境还原 × Reward 设计」</strong>这两个维度突破，谁就可能训出代差级模型。
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section-card" id="s4">
+    <div class="section-header">
+      <div class="section-icon" style="background:linear-gradient(135deg,#fdf2f8,#fce7f3);">🏗️</div>
+      <div>
+        <div class="section-num">第四章</div>
+        <h2>Mimo VR 模型架构的核心决策</h2>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>为什么选 Hybrid Attention，而非 MLA？</h3>
+      <div class="callout callout-insight">
+        MLA 已经在"访存/计算"达到了完美的临界点，<strong>没有空间再上 MTP（Multi-Token Prediction）</strong>。
+      </div>
+      <div class="prose">
+        <p>Hybrid Attention（滑动窗口 + 全局注意力混合）在计算上天然有大量富余，适合：</p>
+      </div>
+      <ul class="styled-list">
+        <li><strong>上 MTP</strong>：充分利用富余算力，实现推理加速（Mimo Flash 能达到 100–150 TPS）</li>
+        <li><strong>更大 7:1 的稀疏比</strong>（Pro 比 Flash 更极致）：控制 KV Cache 增长，让大模型也能保持长文高效率</li>
+      </ul>
+      <div class="code-block">
+        <div class="code-label">Flash 架构决策时间线</div>
+        <span class="arrow">1.</span> 预训练前：<span class="val">确定目标"长上下文高效率"</span>，选 Hybrid Attention<br>
+        <span class="arrow">2.</span> 预训练中后期：<span class="val">发现计算有大量富余</span>，加上 MTP<br>
+        <span class="arrow">3.</span> 验证：<span class="val">MTP 不引入幻觉</span>（预测错误时不采纳），只加速不降质
+      </div>
+      <div class="callout callout-success">
+        <strong>核心原则</strong>：架构目标不应该太复杂，设定过多约束会导致后训练时条件全部失效。只 beat 一个点："长上下文效率"，其他随迭代演进。
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>Mimo VR 三模型矩阵的设计逻辑</h3>
+      <div class="prose"><p>不合并成一个模型，是基于<strong>成本、速度、效果</strong>的 trade-off：</p></div>
+      <div class="model-matrix">
+        <div class="model-card model-card-blue">
+          <div class="model-brain">🧠</div>
+          <div class="model-name">VR Pro</div>
+          <div class="model-role">理解、认知、复杂调度</div>
+          <div style="font-size:11px;color:#1d4ed8;font-weight:600;">大脑高层决策</div>
+        </div>
+        <div class="model-card model-card-green">
+          <div class="model-brain">👁️</div>
+          <div class="model-name">Omni</div>
+          <div class="model-role">全模态感知（视频/音频/图像/文本联合）</div>
+          <div style="font-size:11px;color:#166534;font-weight:600;">感官系统</div>
+        </div>
+        <div class="model-card model-card-orange">
+          <div class="model-brain">🔊</div>
+          <div class="model-name">TTS</div>
+          <div class="model-role">音频输出生成</div>
+          <div style="font-size:11px;color:#9a3412;font-weight:600;">声音表达</div>
+        </div>
+      </div>
+      <div class="prose">
+        <p>编排原则：大部分任务用语言模型，在需要"感官能力"的环节调用 Omni，输出语音时调用 TTS。因为三个模型同一预训练数据，背景知识天然共通。</p>
+      </div>
+      <div class="callout callout-purple">
+        <strong>关于音频离散化的执念</strong>：团队将音频也离散化为类 token 的表示（多层 RVQ），统一到 LLM 范式。成功后发现：在少量风格化数据 SFT 后，模型能泛化到任意自然语言描述的风格，展示出极强的泛化性——这正是"简洁架构 × 大规模预训练"带来的涌现能力。
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="section-card" id="s5">
+    <div class="section-header">
+      <div class="section-icon" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);">📈</div>
+      <div>
+        <div class="section-num">第五章</div>
+        <h2>大模型三年进化史：范式转变的节点复盘</h2>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>阶段划分</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-year">2022 底</div>
+          <div class="timeline-content"><strong>ChatGPT</strong> → 激发短上下文（4K）中的预训练智能，对话范式建立</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2023</div>
+          <div class="timeline-content"><strong>Llama 公开</strong>，开源追赶预训练；Qwen 走生态，DeepSeek 走研究创新</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2024</div>
+          <div class="timeline-content"><strong>o1 / R1 出现</strong>，Reasoning 范式建立（code+math 可验证，RL 训练起飞）</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2025 前</div>
+          <div class="timeline-content"><strong>假 Agent 时代</strong>，框架过于简洁，不具备工业级可用性</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2025 年中</div>
+          <div class="timeline-content"><strong>OpenClaw 引发 Agent 范式觉醒</strong>，后训练地位等同预训练</div>
+        </div>
+        <div class="timeline-item" style="border-color:#bfdbfe;background:var(--primary-light);">
+          <div class="timeline-year" style="color:var(--primary-dark);">2026</div>
+          <div class="timeline-content"><strong>Agent 框架与模型双向共进化，生产力爆发</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>国内格局判断</h3>
+      <div class="stat-row">
+        <div class="stat-chip">
+          <div class="stat-val">2–3月</div>
+          <div class="stat-lbl">国内与Claude 4.6 Opus当前代差</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-val">&gt; 1T</div>
+          <div class="stat-lbl">Agent入场券所需基座参数量</div>
+        </div>
+      </div>
+      <div class="prose"><p>目前国内具备此基座的团队：Kimi（K2）、DeepSeek、Mimo 等数家。</p></div>
+      <div class="prose"><p><strong>竞争胜负手</strong>（按优先级）：</p></div>
+      <ol class="numbered-list">
+        <li>预训练基座不能错（≥1T，架构合理）</li>
+        <li>后训练 × Agent 框架的双向共进化速度</li>
+        <li>如何用 Agent 框架整合自身战略资源（操作系统/硬件/流量/社交）</li>
+        <li>推理成本优势（决定真实渗透率）</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Section 6 -->
+  <div class="section-card" id="s6">
+    <div class="section-header">
+      <div class="section-icon" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);">🤖</div>
+      <div>
+        <div class="section-num">第六章</div>
+        <h2>自学习与 AGI 的路径推断</h2>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>Agent 自学习是怎么发生的</h3>
+      <div class="callout callout-insight">
+        <div class="callout-label">核心洞见</div>
+        Agent 的自学习需要"模型"与"框架"同步进化，单方面进步不够。
+      </div>
+      <div class="prose"><p>自学习的发生路径：</p></div>
+      <ol class="numbered-list">
+        <li>框架中的静态信息（Prompt/System Prompt）在训练中应该随模型能力动态变化</li>
+        <li>框架本身的架构设计（动态信息）需要针对不同场景迭代</li>
+        <li>模型训练通过强化学习提升，反过来改变框架需要的上下文组织</li>
+      </ol>
+      <div class="prose"><p><strong>当前缺失的两个层面</strong>：</p></div>
+      <ul class="styled-list">
+        <li>框架自身的自净化（Agent Framework 的自进化）</li>
+        <li>Agent 与人之间的共进化（人的经验更自然地被 Agent 吸收）</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>AGI 时间线的修正</h3>
+      <div class="compare-banner">
+        <div class="compare-side compare-old">
+          <div class="compare-label">2025年初判断</div>
+          AGI 距今至少两年以上
+        </div>
+        <div class="compare-side compare-new">
+          <div class="compare-label">访谈时（2026年初）修正</div>
+          <strong>两年以内</strong>，即 2027–2028 年
+        </div>
+      </div>
+      <div class="callout callout-success">
+        <strong>修正原因</strong>：看到了一个此前认为"不可能"的事发生了——AI 能辅助做真正的模型研究，包括从研究方向、实验设计到代码实现的全链条。
+      </div>
+      <div class="callout callout-purple">
+        <div class="callout-label">AGI 的判断标准（她的定义）</div>
+        不需要一个清晰的定义，当你发现"每个人的生活方式、工作方式已经被持续改变了很长时间"，那就到了。
+      </div>
+      <div class="prose"><p><strong>路径预判</strong>：先替代工作方式，再替代生活方式；替代生活需要更多依赖机器人（硬件瓶颈）。</p></div>
+    </div>
+  </div>
+
+  <!-- Section 7 -->
+  <div class="section-card" id="s7">
+    <div class="section-header">
+      <div class="section-icon" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);">👥</div>
+      <div>
+        <div class="section-num">第七章</div>
+        <h2>组织与团队的"反常识"选择</h2>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>没有职级、没有分组的研究团队</h3>
+      <div class="stat-row">
+        <div class="stat-chip">
+          <div class="stat-val">100人</div>
+          <div class="stat-lbl">大模型团队总规模</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-val">20–40人</div>
+          <div class="stat-lbl">真正一代模型迭代主力</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-val">55%</div>
+          <div class="stat-lbl">博士比例（含在读）</div>
+        </div>
+      </div>
+      <div class="prose"><p>管理方式：<strong>无职级、无固定分组</strong>（无"预训练组"/"后训练组"之分），且越来越偏向招大二大三本科生。</p></div>
+      <div class="prose"><p><strong>理由</strong>：</p></div>
+      <ul class="styled-list">
+        <li>职级和分组会扼杀创造力，尤其是扼杀跨领域流动</li>
+        <li>做预训练的人去做后训练有天然优势：对<strong>数据多样性</strong>的直觉</li>
+        <li>本科生"思想没有被污染"，对新范式的接纳能力更强</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>热爱驱动，不是管理驱动</h3>
+      <div class="callout callout-purple">
+        "我觉得最有效的管理方式就是——激发热情，让大家围绕自己信仰的事情去做事。"
+      </div>
+      <div class="prose"><p><strong>两个关键操作</strong>：</p></div>
+      <ol class="numbered-list">
+        <li><strong>让人体验</strong>：OpenClaw 的推广不是讲道理，是让100人强制用，相互激发</li>
+        <li><strong>筛人标准</strong>：不看历史经验，看"初始化的上限"（好奇心、热爱、技术基础），经验 1–3 个月就能补</li>
+      </ol>
+      <div class="callout callout-success">
+        这些能力都可以 create。我觉得最多一两个月，慢的话三四个月确实都可以被快速习得。所以<strong>环境反而比经验更重要</strong>。
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>训练 1T 模型的团队规模</h3>
+      <div class="prose"><p>几千张卡，但主力迭代人员约 20–40 人（含数据、算法、Infra）。</p></div>
+      <div class="prose"><p>关键不是人多，而是：</p></div>
+      <ul class="styled-list">
+        <li>每个人追求极致、不容忍 Loss Spike</li>
+        <li>问题出现时，小团队响应速度远快于大团队（跨团队协作效率极低）</li>
+        <li>没有明确发布 deadline，发现问题就停下解决，哪怕停两周</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Section 8 -->
+  <div class="section-card" id="s8">
+    <div class="section-header">
+      <div class="section-icon" style="background:linear-gradient(135deg,#fef2f2,#fee2e2);">⚠️</div>
+      <div>
+        <div class="section-num">第八章</div>
+        <h2>最值得警惕的错误路径</h2>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>"虚假 Agent" 陷阱</h3>
+      <div class="prose"><p>很多 2024–2025 年的模型在 SWE-bench、LiveCodeBench 等 benchmark 上表现很好，但：</p></div>
+      <ul class="styled-list">
+        <li>这些 benchmark 太 specific，只能测"修 bug"而非"做软件工程"</li>
+        <li>模型只是换了更复杂的 System Prompt + 少量环境反馈</li>
+        <li>接上 Claude Code / OpenClaw 就不可用</li>
+      </ul>
+      <div class="callout callout-warn">
+        <strong>正确路径</strong>：在复杂 Agent 框架下，端到端完成高复杂度任务，以此为后训练目标。
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="subsection">
+      <h3>MLA 在 Agent 时代的局限</h3>
+      <div class="prose"><p>MLA（Multi-head Latent Attention）在 Chat 时代是最优结构，但：</p></div>
+      <ul class="styled-list">
+        <li>不支持 MTP（MTP 会卡在计算瓶颈）</li>
+        <li>推理速度相对慢</li>
+        <li>在 post-train 周期拉长的 Agent 时代，预先固定推理场景的假设失效</li>
+      </ul>
+      <div class="callout callout-success">
+        <strong>但</strong>：这不代表 MLA 是"错误"，它是在受限算力下追求最强基座的正确选择；Hybrid 是在追求 Agent 效率的正确选择。两者<strong>目标不同</strong>。
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 9 -->
+  <div class="section-card" id="s9">
+    <div class="section-header">
+      <div class="section-icon" style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);">🔮</div>
+      <div>
+        <div class="section-num">第九章</div>
+        <h2>2026 年核心叙事预判</h2>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>维度</th><th>预测</th></tr></thead>
+        <tbody>
+          <tr><td>主旋律</td><td>高价值场景生产力爆发，多智能体协作，长任务突破</td></tr>
+          <tr><td>技术核心</td><td>Agent框架 × 模型双向自进化</td></tr>
+          <tr><td>端侧模型</td><td>支线，会发生但不是主旋律</td></tr>
+          <tr><td>Multi-agent</td><td>目前能节省时间/成本，但还未能提升任务上限</td></tr>
+          <tr><td>推理需求</td><td>爆发性增长，推理芯片需求可能达当前几倍到10倍</td></tr>
+          <tr><td>开源 vs 闭源</td><td>开源加速 AGI 进程，是历史趋势</td></tr>
+          <tr><td>中美差距</td><td>在拥抱新范式速度足够快的情况下，约2–3个月代差，且在快速追平</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 10 -->
+  <div class="section-card" id="s10">
+    <div class="section-header">
+      <div class="section-icon" style="background:linear-gradient(135deg,#fdf4ff,#fae8ff);">💡</div>
+      <div>
+        <div class="section-num">第十章</div>
+        <h2>一句话提炼每个核心洞见</h2>
+      </div>
+    </div>
+
+    <div class="insights-grid">
+      <div class="insight-item">
+        <div class="insight-num">1</div>
+        <div class="insight-content"><strong>OpenClaw 时刻</strong>：这不是"产品创新"，而是"Agent 编排哲学的开源具现"，让中等模型发挥顶级能力。</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">2</div>
+        <div class="insight-content"><strong>框架哲学</strong>：好的 Agent 框架的本质是"弥补行动缺陷"——把模型获取不到的上下文都喂给它。</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">3</div>
+        <div class="insight-content"><strong>Skills 的本质</strong>：它是预训练数据的补集——把人类组织中沉淀的私有知识，变成 Agent 可调用的能力。</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">4</div>
+        <div class="insight-content"><strong>Code 的泛化性</strong>：Code 在预训练/Reasoning/Agent 三个范式下都是最优雅的研究路径，这绝非偶然。</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">5</div>
+        <div class="insight-content"><strong>训练范式转变</strong>：后训练算力正在追平预训练，Agent 场景的 reward 设计和环境还原是下一个关键战场。</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">6</div>
+        <div class="insight-content"><strong>架构选择逻辑</strong>：Hybrid Attention + MTP = 为"长上下文效率"而生，这是 Agent 时代的架构红利。</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">7</div>
+        <div class="insight-content"><strong>群体智能</strong>：个人想象力有极限，群体协作对框架迭代的加速效果是指数级的；AGI 必须由所有人参与才能实现。</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">8</div>
+        <div class="insight-content"><strong>组织启示</strong>：职级和固定分组扼杀创造力；环境比经验更重要；热爱驱动是唯一可持续的高效能源。</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">9</div>
+        <div class="insight-content"><strong>AGI 时间线</strong>：两年内（2027–2028），触发因素是"AI 能训练比自己更好的 AI"，这将是自迭代加速的临界点。</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">10</div>
+        <div class="insight-content"><strong>竞争胜负手</strong>：不是谁有更多 GPU，而是谁能让 Agent 框架与模型训练形成最快的双向共进化飞轮。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="article-footer">
+    <strong>整理完毕</strong><br>
+    原始访谈时长约 4 小时 · 核心信息密度提炼比约 10:1
+  </div>
+
+</div>
+</body>
+</html>
